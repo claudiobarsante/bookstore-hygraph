@@ -7,7 +7,10 @@ import { signIn } from 'next-auth/react';
 import { Box, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 // -- Graphql
-import { ApiUser, ApiUserCreateInput } from 'graphql/generated/graphql';
+import {
+  SignupMutation,
+  SignupMutationVariables
+} from 'graphql/generated/graphql';
 import { SIGNUP_MUTATION } from 'graphql/mutations/user';
 // -- Custom components
 import CustomTitle from 'components/Title';
@@ -40,17 +43,19 @@ const FormSignUp = () => {
   });
   const [fieldError, setFieldError] = useState<FieldErrors>({} as FieldErrors);
 
-  const [createUser, { loading: loadingCreateUser }] =
-    useMutation<ApiUserCreateInput>(SIGNUP_MUTATION, {
-      onCompleted: () => {
-        signIn('credentials', {
-          email: values.email,
-          password: values.password,
-          callbackUrl: '/'
-        });
-      },
-      onError: (error) => console.log('eroorr', error)
-    });
+  const [createUser, { loading: loadingCreateUser }] = useMutation<
+    SignupMutation,
+    SignupMutationVariables
+  >(SIGNUP_MUTATION, {
+    onCompleted: () => {
+      signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        callbackUrl: '/'
+      });
+    },
+    onError: (error) => console.log('eroorr', error)
+  });
 
   const handleOnChange = (
     field: keyof FormValues,

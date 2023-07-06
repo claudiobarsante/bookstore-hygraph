@@ -3,7 +3,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient } from 'graphql-request';
 import { USER_QUERY } from 'graphql/queries/user';
-import { ApiUser, UserQuery } from 'graphql/generated/graphql';
+import {
+  ApiUser,
+  UserQuery,
+  UserQueryVariables
+} from 'graphql/generated/graphql';
 import { comparePassword } from 'utils/password';
 
 type CustomUser = User & {
@@ -36,9 +40,12 @@ export const authOptions: NextAuthOptions = {
 
       async authorize(credentials) {
         // -- Hygraph API --
-        const { apiUser } = await client.request<UserQuery>(USER_QUERY, {
-          email: credentials?.email
-        });
+        const { apiUser } = await client.request<UserQuery, UserQueryVariables>(
+          USER_QUERY,
+          {
+            email: credentials?.email
+          }
+        );
 
         //  -- Return null if user data could not be retrieved --
         if (!apiUser) return null;
