@@ -40,20 +40,17 @@ const FormSignUp = () => {
   });
   const [fieldError, setFieldError] = useState<FieldErrors>({} as FieldErrors);
 
-  const [createUser, { loading: loadingCreateUser }] = useMutation<
-    ApiUserCreateInput,
-    ApiUser
-  >(SIGNUP_MUTATION, {
-    onCompleted: (data) => {
-      // signIn('credentials', {
-      //   email: values.email,
-      //   password: values.password,
-      //   callbackUrl: '/'
-      // });
-      console.log('data-signup', data);
-    },
-    onError: (error) => console.log('eroorr', error)
-  });
+  const [createUser, { loading: loadingCreateUser }] =
+    useMutation<ApiUserCreateInput>(SIGNUP_MUTATION, {
+      onCompleted: () => {
+        signIn('credentials', {
+          email: values.email,
+          password: values.password,
+          callbackUrl: '/'
+        });
+      },
+      onError: (error) => console.log('eroorr', error)
+    });
 
   const handleOnChange = (
     field: keyof FormValues,
@@ -79,7 +76,7 @@ const FormSignUp = () => {
     }
 
     createUser({
-      variables: { username, email, password: encryptPassword(password) }
+      variables: { username, email, password: await encryptPassword(password) }
     });
   };
 

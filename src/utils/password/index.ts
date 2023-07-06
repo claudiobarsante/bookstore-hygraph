@@ -1,16 +1,24 @@
-import bcrypt from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 //*--Hygraph don't automatically hash de password,
 //*--so I'm using bcrypt to hash and compare the  password
-export const encryptPassword = (password: string): string => {
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync(password, salt);
+export const encryptPassword = async (password: string): Promise<string> => {
+  const salt: string = String(process.env.SALT);
+  const saltRounds: number = parseInt(salt); // Convert salt to a number
+  const hash = await bcryptjs.hash(password, saltRounds);
   // ---------------------------------------------------//
   return hash;
 };
 
-export const comparePassword = (
+export const comparePassword = async (
   plainTextPassword: string,
-  hash: string
-): boolean => {
-  return bcrypt.compareSync(plainTextPassword, hash);
+  hashFromDb: string
+): Promise<boolean> => {
+  // const hash = await bcryptjs.hash(
+  //   plainTextPassword,
+  //   `${process.env.SALT}`
+  // );
+
+  // if (hashFromDb === hash) return true;
+
+  return await bcryptjs.compare(plainTextPassword, hashFromDb);
 };

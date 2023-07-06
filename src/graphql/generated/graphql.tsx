@@ -3547,6 +3547,8 @@ export enum _SystemDateTimeFieldVariation {
   Localization = 'localization'
 }
 
+export type UserFragmentFragment = { __typename?: 'ApiUser', id: string, username?: string | null, email?: string | null, password?: string | null };
+
 export type SignupMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
@@ -3556,17 +3558,28 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { __typename?: 'Mutation', createApiUser?: { __typename?: 'ApiUser', id: string, username?: string | null, email?: string | null, password?: string | null } | null };
 
+export type UserQueryVariables = Exact<{
+  email?: InputMaybe<Scalars['String']>;
+}>;
 
+
+export type UserQuery = { __typename?: 'Query', apiUser?: { __typename?: 'ApiUser', id: string, username?: string | null, email?: string | null, password?: string | null } | null };
+
+export const UserFragmentFragmentDoc = gql`
+    fragment UserFragment on ApiUser {
+  id
+  username
+  email
+  password
+}
+    `;
 export const SignupDocument = gql`
     mutation Signup($username: String!, $password: String!, $email: String!) {
   createApiUser(data: {username: $username, password: $password, email: $email}) {
-    id
-    username
-    email
-    password
+    ...UserFragment
   }
 }
-    `;
+    ${UserFragmentFragmentDoc}`;
 export type SignupMutationFn = Apollo.MutationFunction<SignupMutation, SignupMutationVariables>;
 
 /**
@@ -3595,3 +3608,38 @@ export function useSignupMutation(baseOptions?: Apollo.MutationHookOptions<Signu
 export type SignupMutationHookResult = ReturnType<typeof useSignupMutation>;
 export type SignupMutationResult = Apollo.MutationResult<SignupMutation>;
 export type SignupMutationOptions = Apollo.BaseMutationOptions<SignupMutation, SignupMutationVariables>;
+export const UserDocument = gql`
+    query User($email: String) {
+  apiUser(where: {email: $email}, stage: DRAFT) {
+    ...UserFragment
+  }
+}
+    ${UserFragmentFragmentDoc}`;
+
+/**
+ * __useUserQuery__
+ *
+ * To run a query within a React component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserQuery({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useUserQuery(baseOptions?: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+      }
+export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+        }
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;
