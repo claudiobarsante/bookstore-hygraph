@@ -1,25 +1,19 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+// -- NexthAuth
 import NextAuth, { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { GraphQLClient } from 'graphql-request';
+// -- Graphql --
 import { USER_QUERY } from 'graphql/queries/user';
-import {
-  ApiUser,
-  UserQuery,
-  UserQueryVariables
-} from 'graphql/generated/graphql';
+import { UserQuery, UserQueryVariables } from 'graphql/generated/graphql';
+// -- Utils --
 import { comparePassword } from 'utils/password';
+import { initializeApollo } from 'graphql/client/apolloClient';
 
 type CustomUser = User & {
   username: string;
-  //jwt: string;
 };
 
-const client = new GraphQLClient(process.env.NEXT_PUBLIC_HYGRAPH_API_ENPOINT!, {
-  headers: {
-    Authorization: `Bearer ${process.env.NEXT_PUBLIC_HYGRAPH_TOKEN}`
-  }
-});
+const apolloClient = initializeApollo();
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -39,15 +33,18 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        // -- Hygraph API --
-        const { apiUser } = await client.request<UserQuery, UserQueryVariables>(
-          USER_QUERY,
-          {
+        // -- get user by e-mail --
+        const {
+          data: { apiUser }
+        } = await apolloClient.query<UserQuery, UserQueryVariables>({
+          query: USER_QUERY,
+          variables: {
             email: credentials?.email
-          }
-        );
+          },
+          fetchPolicy: 'no-cache'
+        });
 
-        //  -- Return null if user data could not be retrieved --
+        // -- Return null if user data could not be retrieved --
         if (!apiUser) return null;
 
         // -- check password --
@@ -96,7 +93,6 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           id: token.id as string, //custom
-          // jwt: token.jwt as string, //custom
           name: token.name as string,
           email: token.email as string
         }
@@ -112,7 +108,6 @@ export const authOptions: NextAuthOptions = {
           id: customUser.id,
           email: customUser.email,
           name: customUser.username as string
-          //jwt: customUser.jwt
         };
       }
 

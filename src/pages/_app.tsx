@@ -8,7 +8,8 @@ import createEmotionCache from 'utils/emotion/createEmotionCache';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from 'styles/theme';
-
+// -- NextNprogress --
+import NextNprogress from 'nextjs-progressbar';
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -25,6 +26,12 @@ export default function App(props: AppProps) {
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <NextNprogress
+            color="#73bd73"
+            startPosition={0.3}
+            stopDelayMs={200}
+            showOnShallow={true}
+          />
           <Component {...pageProps} />
         </ThemeProvider>
       </CacheProvider>
