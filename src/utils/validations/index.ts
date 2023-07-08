@@ -1,6 +1,17 @@
 import { FormValues } from 'components/FormSignUp';
 import Joi from 'joi';
 
+// const fieldValidations = {
+//   username: Joi.string().min(5).required(),
+//   email: Joi.string()
+//     .email({ tlds: { allow: false } })
+//     .required(),
+//   password: Joi.string().min(6).required(),
+//   confirmPassword: Joi.string()
+//     .valid(Joi.ref('password'))
+//     .required()
+//     .messages({ 'any.only': 'confirmed password does not match with password' })
+// };
 const fieldValidations = {
   username: Joi.string().min(5).required(),
   email: Joi.string()
@@ -10,7 +21,7 @@ const fieldValidations = {
   confirmPassword: Joi.string()
     .valid(Joi.ref('password'))
     .required()
-    .messages({ 'any.only': 'confirmed password does not match with password' })
+    .messages({ 'any.only': 'Confirmed password does not match with password' })
 };
 
 //? I know it sounds repetitive, but it's to name the type in a more meaningful way
@@ -49,6 +60,8 @@ function getFieldErrors(objError: Joi.ValidationResult) {
 
 export function signUpValidate(values: FormFields) {
   const schema = Joi.object(fieldValidations);
+  const errors = schema.validate(values, { abortEarly: false });
+  console.log('errors', errors);
   return getFieldErrors(schema.validate(values, { abortEarly: false }));
 }
 
@@ -60,6 +73,11 @@ export function signInValidate(values: SignInValues) {
 }
 
 export function validateField(field: keyof FormFields, value: string) {
+  // -- Edge case --
+  // -- It's not necessaryto validate the fiel "confirmPassword" because it will be
+  // -- validate together with the field "password" once the user submits the form
+  if (field === 'confirmPassword') return {};
+  // --
   const fieldValidation = { [field]: fieldValidations[field] };
   const schema = Joi.object(fieldValidation);
 

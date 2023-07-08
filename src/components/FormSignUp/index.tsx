@@ -88,7 +88,7 @@ const FormSignUp = () => {
   const handleOnBlur = useCallback(
     (field: keyof FormFields) => {
       const errorCheck = validateField(field, values[field]) as FieldErrors;
-
+      console.log('error', errorCheck);
       //? cleaning previous error
       const hasPreviousError =
         fieldError.hasOwnProperty(field) && !errorCheck.hasOwnProperty(field);
