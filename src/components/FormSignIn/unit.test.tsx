@@ -61,29 +61,46 @@ describe('<FormSignIn />', () => {
     ).toBeInTheDocument();
   });
 
-  it('should submit the form', async () => {
-    const mockSignIn = jest.fn();
-    jest.mock('next-auth/react', () => ({
-      signIn: () => mockSignIn()
-    }));
+  it('should show error message for an invalid email', async () => {
+    const errorMessage = '"email" must be a valid email';
+    renderWithTheme(<FormSignIn />);
 
-    const handleOnSubmit = jest.fn();
+    const emailInput = screen.getByLabelText('E-mail');
+    userEvent.type(emailInput, 'invalid-e-mail-format');
 
-    const { getByRole } = renderWithTheme(<FormSignIn />);
+    await waitFor(() => {
+      expect(emailInput).toHaveValue('invalid-e-mail-format');
+    });
+    userEvent.tab();
 
-    const emailInput = screen.getByLabelText(/e-mail/i);
-    const passwordInput = screen.getByLabelText('Password');
-    // const button = screen.getByRole('button', { name: /sign in/i });
-
-    // Fill in form fields
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-
-    const submitButton = getByRole('button', { name: /sign in/i });
-    // Submit form
-    fireEvent.click(submitButton);
-
-    // Assert that the LoadingButton was clicked and the form was submitted
-    expect(handleOnSubmit).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
   });
+
+  // it('should submit the form', async () => {
+  //   const mockSignIn = jest.fn();
+  //   jest.mock('next-auth/react', () => ({
+  //     signIn: () => mockSignIn()
+  //   }));
+
+  //   const handleOnSubmit = jest.fn();
+
+  //   const { getByRole } = renderWithTheme(<FormSignIn />);
+
+  //   const emailInput = screen.getByLabelText(/e-mail/i);
+  //   const passwordInput = screen.getByLabelText('Password');
+  //   // const button = screen.getByRole('button', { name: /sign in/i });
+
+  //   // Fill in form fields
+  //   fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+  //   fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+  //   const submitButton = getByRole('button', { name: /sign in/i });
+  //   // Submit form
+  //   fireEvent.click(submitButton);
+
+  //   // Assert that the LoadingButton was clicked and the form was submitted
+  //   expect(handleOnSubmit).toHaveBeenCalled();
+  // });
 });

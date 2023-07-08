@@ -71,7 +71,7 @@ describe('validations', () => {
       };
 
       expect(signUpValidate(values).confirmPassword).toMatchInlineSnapshot(
-        `"confirmed password does not match with password"`
+        `"Confirmed password does not match with password"`
       );
     });
   });
