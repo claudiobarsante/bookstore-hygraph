@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
+import nextAuth from 'next-auth';
 import { signIn } from 'next-auth/react';
-
+import { mocked } from 'jest-mock';
 import {
   renderWithTheme,
   screen,
@@ -39,14 +40,6 @@ useRouter.mockImplementation(() => ({
 jest.mock('next-auth/react', () => ({
   signIn: jest.fn()
 }));
-
-// to avoid errors 'create element' - use link too when mocking rounter
-// jest.mock('next/link', () => ({
-//   __esModule: true,
-//   default: function Mock({ children }: { children: React.ReactNode }) {
-//     return <div>{children}</div>;
-//   }
-// }));
 
 describe('<FormSignIn />', () => {
   it('should render the form', () => {
@@ -134,6 +127,44 @@ describe('<FormSignIn />', () => {
     // fireEvent.click(submitButton);
     submitButton.click();
     // Assert that the LoadingButton was clicked and the form was submitted
-    expect(signIn).toHaveBeenCalled();
+    expect(signIn).toHaveBeenCalledWith('credentials', {
+      email: 'user@example.com',
+      password: 'password123',
+      callbackUrl: 'http://localhost',
+      redirect: false
+    });
+  });
+
+  it('should show error message for an invalid user or password', async () => {
+    const mockedSignIn = mocked(signIn);
+    mockedSignIn.mockResolvedValueOnce({
+      error: 'CredentialsSignin',
+      status: 401,
+      ok: false,
+      url: null
+    });
+
+    renderWithTheme(<FormSignIn />);
+
+    const emailInput = screen.getByLabelText(/e-mail/i);
+    const passwordInput = screen.getByLabelText('Password');
+    // const button = screen.getByRole('button', { name: /sign in/i });
+
+    // Fill in form fields
+    fireEvent.change(emailInput, { target: { value: 'wrong@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    // Submit form
+    // fireEvent.click(submitButton);
+    submitButton.click();
+    // Assert that the LoadingButton was clicked and the form was submitted
+    //expect(signIn).toHaveBeenCalled();
+
+    // Assert that the error message is displayed
+    const errorMessage = await screen.findByText(
+      'username or password is invalid'
+    );
+    expect(errorMessage).toBeInTheDocument();
   });
 });

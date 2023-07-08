@@ -74,7 +74,7 @@ const FormSignIn = () => {
     if (result?.url) {
       return push(result?.url);
     }
-
+    console.log('result', result);
     setLoading(false);
     // jogar o erro
     setFormError('username or password is invalid');
