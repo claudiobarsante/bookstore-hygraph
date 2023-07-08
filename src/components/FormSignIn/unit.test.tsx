@@ -78,6 +78,41 @@ describe('<FormSignIn />', () => {
     });
   });
 
+  it('should show error message when password is empty or less than 6 characters', async () => {
+    renderWithTheme(<FormSignIn />);
+
+    const passwordInput = screen.getByLabelText('Password');
+    // -- Empty password --
+    userEvent.clear(passwordInput);
+
+    await waitFor(() => {
+      expect(passwordInput).toHaveValue('');
+    });
+
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('"password" is not allowed to be empty')
+      ).toBeInTheDocument();
+    });
+
+    // -- Less than 6 characters --
+    userEvent.type(passwordInput, '123');
+
+    await waitFor(() => {
+      expect(passwordInput).toHaveValue('123');
+    });
+
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('"password" length must be at least 6 characters long')
+      ).toBeInTheDocument();
+    });
+  });
+
   // it('should submit the form', async () => {
   //   const mockSignIn = jest.fn();
   //   jest.mock('next-auth/react', () => ({
