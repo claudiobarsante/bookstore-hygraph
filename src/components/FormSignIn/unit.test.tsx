@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { signIn } from 'next-auth/react';
 
 import {
   renderWithTheme,
@@ -33,6 +34,10 @@ useRouter.mockImplementation(() => ({
   query: '',
   asPath: '',
   route: '/'
+}));
+
+jest.mock('next-auth/react', () => ({
+  signIn: jest.fn()
 }));
 
 // to avoid errors 'create element' - use link too when mocking rounter
@@ -113,29 +118,22 @@ describe('<FormSignIn />', () => {
     });
   });
 
-  // it('should submit the form', async () => {
-  //   const mockSignIn = jest.fn();
-  //   jest.mock('next-auth/react', () => ({
-  //     signIn: () => mockSignIn()
-  //   }));
+  it('should submit the form', async () => {
+    renderWithTheme(<FormSignIn />);
 
-  //   const handleOnSubmit = jest.fn();
+    const emailInput = screen.getByLabelText(/e-mail/i);
+    const passwordInput = screen.getByLabelText('Password');
+    // const button = screen.getByRole('button', { name: /sign in/i });
 
-  //   const { getByRole } = renderWithTheme(<FormSignIn />);
+    // Fill in form fields
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
 
-  //   const emailInput = screen.getByLabelText(/e-mail/i);
-  //   const passwordInput = screen.getByLabelText('Password');
-  //   // const button = screen.getByRole('button', { name: /sign in/i });
-
-  //   // Fill in form fields
-  //   fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-  //   fireEvent.change(passwordInput, { target: { value: 'password123' } });
-
-  //   const submitButton = getByRole('button', { name: /sign in/i });
-  //   // Submit form
-  //   fireEvent.click(submitButton);
-
-  //   // Assert that the LoadingButton was clicked and the form was submitted
-  //   expect(handleOnSubmit).toHaveBeenCalled();
-  // });
+    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    // Submit form
+    // fireEvent.click(submitButton);
+    submitButton.click();
+    // Assert that the LoadingButton was clicked and the form was submitted
+    expect(signIn).toHaveBeenCalled();
+  });
 });
