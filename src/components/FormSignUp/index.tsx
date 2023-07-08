@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import Link from 'next/link';
 // -- Authentication
 import { signIn } from 'next-auth/react';
 // -- Material ui
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Alert } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 // -- Graphql
 import {
@@ -34,6 +34,12 @@ export type FormValues = {
   username: string;
 };
 
+type ApolloErrorResult = {
+  errors: { message: string }[];
+  data: null;
+  extensions: { requestId: string };
+};
+
 const FormSignUp = () => {
   const [values, setValues] = useState<FormValues>({
     email: '',
@@ -42,7 +48,7 @@ const FormSignUp = () => {
     username: ''
   });
   const [fieldError, setFieldError] = useState<FieldErrors>({} as FieldErrors);
-
+  const [submitError, setSubmitError] = useState('');
   const [createUser, { loading: loadingCreateUser }] = useMutation<
     SignupMutation,
     SignupMutationVariables
@@ -54,7 +60,19 @@ const FormSignUp = () => {
         callbackUrl: '/'
       });
     },
-    onError: (error) => console.log('eroorr', error)
+    onError: (apolloError) => {
+      const error: ApolloError = new ApolloError(apolloError);
+      const networkError = error.networkError as unknown as {
+        result: ApolloErrorResult;
+      };
+
+      const errorMessage = networkError.result.errors[0].message;
+      if (errorMessage === 'value is not unique for the field "email"') {
+        setSubmitError(
+          `The e-mail ${values.email} is already taken, try another one.`
+        );
+      }
+    }
   });
 
   const handleOnChange = (
@@ -88,7 +106,7 @@ const FormSignUp = () => {
   const handleOnBlur = useCallback(
     (field: keyof FormFields) => {
       const errorCheck = validateField(field, values[field]) as FieldErrors;
-      console.log('error', errorCheck);
+
       //? cleaning previous error
       const hasPreviousError =
         fieldError.hasOwnProperty(field) && !errorCheck.hasOwnProperty(field);
@@ -131,7 +149,15 @@ const FormSignUp = () => {
           sx={{ marginBottom: '2rem' }}
           text="Book  Store"
         />
-
+        <Box
+          sx={{
+            marginTop: '2rem',
+            marginBottom: '-3rem',
+            visibility: !!submitError ? 'visible' : 'hidden'
+          }}
+        >
+          <Alert severity="error">{submitError}</Alert>
+        </Box>
         <FormHeader
           text="Sign Up"
           color="primary"
@@ -152,6 +178,7 @@ const FormSignUp = () => {
           values={values}
           sx={{ marginBottom: '2rem', marginTop: '4rem' }}
         />
+
         <StandardInput
           color="primary"
           field="email"

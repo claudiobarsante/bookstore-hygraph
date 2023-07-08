@@ -1,17 +1,6 @@
 import { FormValues } from 'components/FormSignUp';
 import Joi from 'joi';
 
-// const fieldValidations = {
-//   username: Joi.string().min(5).required(),
-//   email: Joi.string()
-//     .email({ tlds: { allow: false } })
-//     .required(),
-//   password: Joi.string().min(6).required(),
-//   confirmPassword: Joi.string()
-//     .valid(Joi.ref('password'))
-//     .required()
-//     .messages({ 'any.only': 'confirmed password does not match with password' })
-// };
 const fieldValidations = {
   username: Joi.string().min(5).required(),
   email: Joi.string()
