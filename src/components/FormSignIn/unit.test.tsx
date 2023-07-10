@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import nextAuth from 'next-auth';
 import { signIn } from 'next-auth/react';
 import { mocked } from 'jest-mock';
 import {
@@ -158,9 +157,6 @@ describe('<FormSignIn />', () => {
     // Submit form
     // fireEvent.click(submitButton);
     submitButton.click();
-    // Assert that the LoadingButton was clicked and the form was submitted
-    //expect(signIn).toHaveBeenCalled();
-
     // Assert that the error message is displayed
     const errorMessage = await screen.findByText(
       'username or password is invalid'

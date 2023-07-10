@@ -49,6 +49,8 @@ const FormSignUp = () => {
   });
   const [fieldError, setFieldError] = useState<FieldErrors>({} as FieldErrors);
   const [submitError, setSubmitError] = useState('');
+
+  //#region Create User
   const [createUser, { loading: loadingCreateUser }] = useMutation<
     SignupMutation,
     SignupMutationVariables
@@ -74,7 +76,7 @@ const FormSignUp = () => {
       }
     }
   });
-
+  //#endregion
   const handleOnChange = (
     field: keyof FormValues,
     event: React.ChangeEvent<HTMLInputElement>
@@ -196,6 +198,7 @@ const FormSignUp = () => {
           fieldError={fieldError}
           handleOnBlur={handleOnBlur}
           handleOnChange={handleOnChange}
+          label="Password"
           values={values}
           sx={{ marginBottom: 3 }}
         />
@@ -205,6 +208,7 @@ const FormSignUp = () => {
           fieldError={fieldError}
           handleOnBlur={handleOnBlur}
           handleOnChange={handleOnChange}
+          label="Confirm Password"
           values={values}
         />
 

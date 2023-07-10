@@ -14,14 +14,15 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { StandardInputProps } from '../Standard';
 import { Colors } from 'styles/theme/colors';
 
-type PasswordInputProps = Omit<StandardInputProps, 'label'>;
-
+//type PasswordInputProps = Omit<StandardInputProps, 'label'>;
+type PasswordInputProps = StandardInputProps;
 const PasswordInput = ({
   color,
   field,
   fieldError,
   handleOnBlur,
   handleOnChange,
+  label,
   sx,
   values
 }: PasswordInputProps) => {
@@ -49,7 +50,7 @@ const PasswordInput = ({
 
   return (
     <FormControl variant="standard" fullWidth sx={mergedStyles}>
-      <InputLabel htmlFor={field}>Password</InputLabel>
+      <InputLabel htmlFor={field}>{label}</InputLabel>
       <Input
         aria-label={`input for ${field}`}
         id={field}
