@@ -164,6 +164,7 @@ const FormSignIn = () => {
             fieldError={fieldError}
             handleOnBlur={handleOnBlur}
             handleOnChange={handleOnChange}
+            label="Password"
             values={values}
             sx={{ marginBottom: 3 }}
           />

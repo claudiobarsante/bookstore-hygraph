@@ -25,33 +25,89 @@ jest.mock('components/FormHeader', () => ({
 }));
 
 describe('<FormSignUp />', () => {
-  it('should update the state of the input fields when a user types in them', () => {
-    const handleOnChange = jest.fn();
+  it('should render the form', () => {
     renderWithTheme(
       <MockedProvider mocks={[]} addTypename={false}>
         <FormSignUp />
       </MockedProvider>
     );
-
-    const usernameInput = screen.getByRole('textbox', { name: /username/i });
-    //const usernameInput = screen.getByLabelText('Username');
-    // const emailInput = screen.getByLabelText('E-mail');
-    // const passwordInput = screen.getByRole('textbox', { name: /password/i });
-    //  const confirmPasswordInput = screen.getByRole('textbox', {
-    //    name: /confirm password/i
-    //  });
-
-    userEvent.type(usernameInput, 'JohnDoe');
-    // userEvent.type(emailInput, 'envkt@example.com');
-    //userEvent.type(passwordInput, 'password');
-    //userEvent.type(confirmPasswordInput, 'password');
-
-    expect(usernameInput).toHaveValue('');
-    //expect(emailInput).toBe('envkt@example.com');
-    // expect(passwordInput).toBe('password');
-    //expect(confirmPasswordInput).toBe('password');
+    expect(screen.getByLabelText('User name')).toBeInTheDocument();
+    expect(screen.getByLabelText('E-mail')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Confirm password')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /sign up/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /sign in/i })).toBeInTheDocument();
   });
 });
+
+describe('Error messages', () => {
+  it('should show error messages for an empty or invalid user name', async () => {
+    renderWithTheme(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <FormSignUp />
+      </MockedProvider>
+    );
+    const usernameInput = screen.getByLabelText('User name');
+    userEvent.clear(usernameInput);
+    // -- Empty username --
+    await waitFor(() => {
+      expect(usernameInput).toHaveValue('');
+    });
+
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('"username" is not allowed to be empty')
+      ).toBeInTheDocument();
+    });
+    // -- Less than 5 characters --
+    userEvent.type(usernameInput, 'abcd');
+
+    await waitFor(() => {
+      expect(usernameInput).toHaveValue('abcd');
+    });
+
+    userEvent.tab();
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /"username" length must be at least 5 characters long/i
+        )
+      ).toBeInTheDocument();
+    });
+  });
+});
+
+//   it('should update the state of the input fields when a user types in them', () => {
+//     const handleOnChange = jest.fn();
+//     renderWithTheme(
+//       <MockedProvider mocks={[]} addTypename={false}>
+//         <FormSignUp />
+//       </MockedProvider>
+//     );
+
+//     const usernameInput = screen.getByRole('textbox', { name: /user name/i });
+//     //const usernameInput = screen.getByLabelText('Username');
+//     // const emailInput = screen.getByLabelText('E-mail');
+//     // const passwordInput = screen.getByRole('textbox', { name: /password/i });
+//     //  const confirmPasswordInput = screen.getByRole('textbox', {
+//     //    name: /confirm password/i
+//     //  });
+
+//     userEvent.type(usernameInput, 'JohnDoe');
+//     // userEvent.type(emailInput, 'envkt@example.com');
+//     //userEvent.type(passwordInput, 'password');
+//     //userEvent.type(confirmPasswordInput, 'password');
+
+//     expect(usernameInput).toHaveValue('');
+//     //expect(emailInput).toBe('envkt@example.com');
+//     // expect(passwordInput).toBe('password');
+//     //expect(confirmPasswordInput).toBe('password');
+//   });
+// });
 
 /**
  *  it('should display an error message when the username field is blurred and it is empty', () => {

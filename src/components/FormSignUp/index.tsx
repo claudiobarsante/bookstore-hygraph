@@ -176,7 +176,7 @@ const FormSignUp = () => {
           fieldError={fieldError}
           handleOnBlur={handleOnBlur}
           handleOnChange={handleOnChange}
-          label="Username"
+          label="User name"
           values={values}
           sx={{ marginBottom: '2rem', marginTop: '4rem' }}
         />
@@ -208,7 +208,7 @@ const FormSignUp = () => {
           fieldError={fieldError}
           handleOnBlur={handleOnBlur}
           handleOnChange={handleOnChange}
-          label="Confirm Password"
+          label="Confirm password"
           values={values}
         />
 
