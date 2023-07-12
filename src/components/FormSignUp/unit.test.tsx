@@ -8,7 +8,9 @@ import {
   waitFor
 } from 'utils/tests/helpers';
 
-import FormSignUp from '.';
+import FormSignUp, { ApolloErrorResult } from '.';
+import { emailAlreadyTakenMock } from './mock';
+import { ApolloError } from '@apollo/client';
 
 jest.mock('components/Title', () => ({
   __esModule: true,
@@ -79,98 +81,55 @@ describe('Error messages', () => {
       ).toBeInTheDocument();
     });
   });
-});
-
-//   it('should update the state of the input fields when a user types in them', () => {
-//     const handleOnChange = jest.fn();
-//     renderWithTheme(
-//       <MockedProvider mocks={[]} addTypename={false}>
-//         <FormSignUp />
-//       </MockedProvider>
-//     );
-
-//     const usernameInput = screen.getByRole('textbox', { name: /user name/i });
-//     //const usernameInput = screen.getByLabelText('Username');
-//     // const emailInput = screen.getByLabelText('E-mail');
-//     // const passwordInput = screen.getByRole('textbox', { name: /password/i });
-//     //  const confirmPasswordInput = screen.getByRole('textbox', {
-//     //    name: /confirm password/i
-//     //  });
-
-//     userEvent.type(usernameInput, 'JohnDoe');
-//     // userEvent.type(emailInput, 'envkt@example.com');
-//     //userEvent.type(passwordInput, 'password');
-//     //userEvent.type(confirmPasswordInput, 'password');
-
-//     expect(usernameInput).toHaveValue('');
-//     //expect(emailInput).toBe('envkt@example.com');
-//     // expect(passwordInput).toBe('password');
-//     //expect(confirmPasswordInput).toBe('password');
-//   });
-// });
-
-/**
- *  it('should display an error message when the username field is blurred and it is empty', () => {
-    render(<FormSignUp />);
-
-    const usernameInput = screen.getByLabelText('Username');
-
-    fireEvent.blur(usernameInput);
-
-    expect(screen.getByText('This field is required.')).toBeInTheDocument();
-  });
-
-  import { render, fireEvent, waitFor } from '@testing-library/react';
-import FormSignUp from './FormSignUp';
-
-describe('FormSignUp', () => {
-  it('should call the createUser function with correct arguments', async () => {
-    const createUserMock = jest.fn();
-
-    const { getByLabelText, getByText } = render(<FormSignUp createUser={createUserMock} />);
-
-    const emailInput = getByLabelText('E-mail');
-    const passwordInput = getByLabelText('Password');
-    const confirmPasswordInput = getByLabelText('Confirm Password');
-    const usernameInput = getByLabelText('Username');
-    const signUpButton = getByText('Sign up now');
-
-    fireEvent.change(emailInput, { target: { value: 'john.doe@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'password123' } });
-    fireEvent.change(usernameInput, { target: { value: 'johndoe' } });
-    fireEvent.click(signUpButton);
-
-    await waitFor(() =>
-      expect(createUserMock).toHaveBeenCalledWith({
-        variables: {
-          email: 'john.doe@example.com',
-          password: 'password123',
-          username: 'johndoe',
-        },
-      })
+  //? -- It's not possible to test the e-mail validation here, because there's no way I cam mock
+  //? -- the encryption of the password to use to mock the  SIGNUP_MUTATION
+  it.skip('should show error message when the e-mail is already taken', async () => {
+    renderWithTheme(
+      <MockedProvider mocks={[emailAlreadyTakenMock]} addTypename={false}>
+        <FormSignUp />
+      </MockedProvider>
     );
-  });
+    const usernameInput = screen.getByLabelText('User name');
+    userEvent.type(usernameInput, 'John Doe');
+    await waitFor(() => {
+      expect(usernameInput).toHaveValue('John Doe');
+    });
 
-  it('should not call the createUser function if there are validation errors', async () => {
-    const createUserMock = jest.fn();
+    userEvent.tab();
 
-    const { getByLabelText, getByText } = render(<FormSignUp createUser={createUserMock} />);
+    const emailInput = screen.getByLabelText('E-mail');
+    userEvent.type(emailInput, 'alreadyexists@example.com');
+    await waitFor(() => {
+      expect(emailInput).toHaveValue('alreadyexists@example.com');
+    });
 
-    const emailInput = getByLabelText('E-mail');
-    const passwordInput = getByLabelText('Password');
-    const confirmPasswordInput = getByLabelText('Confirm Password');
-    const usernameInput = getByLabelText('Username');
-    const signUpButton = getByText('Sign up now');
+    userEvent.tab();
 
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'password456' } });
-    fireEvent.change(usernameInput, { target: { value: '' } });
-    fireEvent.click(signUpButton);
+    const passwordInput = screen.getByLabelText('Password');
+    userEvent.type(passwordInput, '123456');
+    await waitFor(() => {
+      expect(passwordInput).toHaveValue('123456');
+    });
 
-    await waitFor(() => expect(createUserMock).not.toHaveBeenCalled());
+    userEvent.tab();
+
+    const confirmPasswordInput = screen.getByLabelText('Confirm password');
+    userEvent.type(confirmPasswordInput, '123456');
+    await waitFor(() => {
+      expect(confirmPasswordInput).toHaveValue('123456');
+    });
+
+    userEvent.tab();
+
+    const button = screen.getByRole('button', { name: /sign up/i });
+    button.click();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /the e\-mail alreadyexists@example\.com is already taken, try another one\./i
+        )
+      ).toBeInTheDocument();
+    });
   });
 });
-
- */

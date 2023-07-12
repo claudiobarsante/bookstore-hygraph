@@ -50,7 +50,7 @@ function getFieldErrors(objError: Joi.ValidationResult) {
 export function signUpValidate(values: FormFields) {
   const schema = Joi.object(fieldValidations);
   const errors = schema.validate(values, { abortEarly: false });
-  console.log('errors', errors);
+
   return getFieldErrors(schema.validate(values, { abortEarly: false }));
 }
 

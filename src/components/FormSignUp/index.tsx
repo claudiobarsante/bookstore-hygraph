@@ -34,7 +34,7 @@ export type FormValues = {
   username: string;
 };
 
-type ApolloErrorResult = {
+export type ApolloErrorResult = {
   errors: { message: string }[];
   data: null;
   extensions: { requestId: string };
@@ -63,12 +63,19 @@ const FormSignUp = () => {
       });
     },
     onError: (apolloError) => {
+      // -- Getting the network --
       const error: ApolloError = new ApolloError(apolloError);
       const networkError = error.networkError as unknown as {
         result: ApolloErrorResult;
       };
 
-      const errorMessage = networkError.result.errors[0].message;
+      let errorMessage = '';
+      if (networkError?.result)
+        errorMessage = networkError.result.errors[0].message;
+      // -- to show error from mocked tests --
+      if (!networkError?.result)
+        errorMessage = apolloError.networkError?.message as string;
+      // --------------------------------------
       if (errorMessage === 'value is not unique for the field "email"') {
         setSubmitError(
           `The e-mail ${values.email} is already taken, try another one.`
@@ -103,6 +110,9 @@ const FormSignUp = () => {
     createUser({
       variables: { username, email, password: await encryptPassword(password) }
     });
+    // createUser({
+    //   variables: { username, email, password }
+    // });
   };
 
   const handleOnBlur = useCallback(
