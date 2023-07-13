@@ -10,7 +10,10 @@
     "types:check": "tsc --project tsconfig.json --noEmit",
     "types:generate": "graphql-codegen --config codegen.yml",
     "test": "jest",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watch",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test:e2e": "start-server-and-test dev 3000 cy:open"
   },
   "dependencies": {
     "@apollo/client": "^3.6.10",
@@ -77,11 +80,11 @@
     "babel-jest": "^29.2.0",
     "babel-loader": "^8.3.0",
     "babel-plugin-import": "^1.13.5",
-    "cypress": "^12.8.1",
+    "cypress": "^12.17.1",
     "eslint": "8.24.0",
     "eslint-config-next": "12.3.1",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-cypress": "^2.13.3",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.10",
     "eslint-plugin-react-hooks": "^4.6.0",
