@@ -2,6 +2,8 @@ import type { AppProps as NextAppProps } from 'next/app';
 // -- Apollo
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from 'graphql/client/apolloClient';
+// -- NextAuth
+import { SessionProvider } from 'next-auth/react';
 // -- Material UI
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from 'utils/emotion/createEmotionCache';
@@ -19,22 +21,28 @@ type AppProps<P = any> = {
 } & Omit<NextAppProps<P>, 'pageProps'>;
 
 export default function App(props: AppProps) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  const {
+    Component,
+    emotionCache = clientSideEmotionCache,
+    pageProps: { session, ...pageProps }
+  } = props;
   const apolloClient = useApollo(pageProps);
   return (
-    <ApolloProvider client={apolloClient}>
-      <CacheProvider value={emotionCache}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <NextNprogress
-            color="#73bd73"
-            startPosition={0.3}
-            stopDelayMs={200}
-            showOnShallow={true}
-          />
-          <Component {...pageProps} />
-        </ThemeProvider>
-      </CacheProvider>
-    </ApolloProvider>
+    <SessionProvider session={session}>
+      <ApolloProvider client={apolloClient}>
+        <CacheProvider value={emotionCache}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <NextNprogress
+              color="#73bd73"
+              startPosition={0.3}
+              stopDelayMs={200}
+              showOnShallow={true}
+            />
+            <Component {...pageProps} />
+          </ThemeProvider>
+        </CacheProvider>
+      </ApolloProvider>
+    </SessionProvider>
   );
 }
